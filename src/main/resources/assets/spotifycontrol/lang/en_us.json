@@ -1,0 +1,7 @@
+{
+  "category.spotifycontrol.spotify": "Spotify Control",
+  "key.spotifycontrol.playpause": "Play/Pause",
+  "key.spotifycontrol.nexttrack": "Next Track",
+  "key.spotifycontrol.prevtrack": "Previous Track",
+  "key.spotifycontrol.togglehud": "Toggle HUD Visibility"
+}

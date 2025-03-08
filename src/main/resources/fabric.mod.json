@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "spotifycontrol",
+  "version": "${version}",
+  "name": "SpotifyControl",
+  "description": "Control & View your spotify in-game!",
+  "authors": [],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/spotifycontrol/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "pet.april.spotifycontrol.client.SpotifycontrolClient"
+    ],
+    "main": [
+      "pet.april.spotifycontrol.Spotifycontrol"
+    ]
+  },
+  "mixins": [
+    "spotifycontrol.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
