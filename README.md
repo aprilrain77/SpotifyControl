@@ -1,5 +1,5 @@
 # SpotifyControl
- Control your Spotify from in-game :)
+ Control your Spotify from Minecraft! :)
 
 How is it done? 
 
@@ -14,8 +14,4 @@ Commands:
 - /spotify hud preset <bottomcenter|bottomleft|bottomright|middlecenter|middleleft|middleright|topcenter|topleft|topright> 
 - /spotify hud position <x> <y>
 
-You can download from!
-https://github.com/aprilrain77/SpotifyControl/releases/tag/v1.0.0
-
-(I plan to also put on Modrinth shortly :3) 
-
+https://modrinth.com/mod/spotify-control
