@@ -15,3 +15,5 @@ Commands:
 - /spotify hud position <x> <y>
 
 https://modrinth.com/mod/spotify-control
+
+https://discord.gg/AJ4wG2sb discord for it :3
