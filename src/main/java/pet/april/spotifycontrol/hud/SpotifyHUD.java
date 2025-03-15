@@ -25,6 +25,7 @@ public class SpotifyHUD implements HudRenderCallback {
     private static final Pattern SONG_PATTERN = Pattern.compile("(.*?) - (.*?)( - Spotify)?$");
 
     private static final String MUSIC_ICON = "♬";
+    private static final String PAUSED_ICON = "⏸";
 
     public enum PositionPreset {
         TOP_LEFT,
@@ -42,6 +43,7 @@ public class SpotifyHUD implements HudRenderCallback {
     private String artist = "";
     private boolean isPlaying = false;
     private boolean visible = true;
+    private boolean showWhenNotPlaying = true;
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private final boolean isWindows;
     private final boolean isLinux;
@@ -53,6 +55,13 @@ public class SpotifyHUD implements HudRenderCallback {
     private int margin = 10;
     private PositionPreset currentPreset = PositionPreset.TOP_LEFT;
     private boolean presetPositionApplied = false;
+
+    private int scrollPosition = 0;
+    private long lastScrollTime = 0;
+    private int scrollSpeed = 2;
+    private int scrollDelay = 50;
+    private int maxTextWidth = 200;
+    private boolean enableScrolling = true;
 
     public SpotifyHUD() {
         String osName = System.getProperty("os.name").toLowerCase();
@@ -70,15 +79,29 @@ public class SpotifyHUD implements HudRenderCallback {
     @Override
     public void onHudRender(DrawContext context, RenderTickCounter tickCounter) {
         MinecraftClient client = MinecraftClient.getInstance();
-        if (client == null || client.player == null || !visible || !isPlaying || isDebugHudOpen()) {
+        if (client == null || client.player == null || !visible || isDebugHudOpen()) {
             return;
         }
 
-        String displayText = MUSIC_ICON + " " + artist + " - " + songTitle;
+        if (!isPlaying && !showWhenNotPlaying) {
+            return;
+        }
+
+        String displayText;
+        if (isPlaying) {
+            displayText = MUSIC_ICON + " " + artist + " - " + songTitle;
+        } else {
+            displayText = PAUSED_ICON + " " + songTitle;
+        }
+
         int textWidth = client.textRenderer.getWidth(displayText);
         int padding = 4;
 
-        int totalWidth = textWidth + padding * 2;
+        boolean needsScrolling = enableScrolling && textWidth > maxTextWidth;
+
+        int actualDisplayWidth = needsScrolling ? maxTextWidth : textWidth;
+
+        int totalWidth = actualDisplayWidth + padding * 2;
         int totalHeight = client.textRenderer.fontHeight + padding * 2;
 
         if (!presetPositionApplied) {
@@ -87,10 +110,35 @@ public class SpotifyHUD implements HudRenderCallback {
         }
 
         context.fill(xPos - padding, yPos - padding,
-                xPos + textWidth + padding, yPos + client.textRenderer.fontHeight + padding,
+                xPos + actualDisplayWidth + padding, yPos + client.textRenderer.fontHeight + padding,
                 bgColor);
 
-        context.drawText(client.textRenderer, displayText, xPos, yPos, textColor, true);
+        if (needsScrolling) {
+            long currentTime = System.currentTimeMillis();
+            if (currentTime - lastScrollTime > scrollDelay) {
+                scrollPosition += scrollSpeed;
+                lastScrollTime = currentTime;
+
+                if (scrollPosition > textWidth) {
+                    scrollPosition = -maxTextWidth;
+                }
+            }
+
+            int scissorX = xPos;
+            int scissorY = yPos;
+            int scissorWidth = actualDisplayWidth;
+            int scissorHeight = client.textRenderer.fontHeight;
+
+            context.enableScissor(scissorX, scissorY, scissorX + scissorWidth, scissorY + scissorHeight);
+
+            context.drawText(client.textRenderer, displayText, xPos - scrollPosition, yPos, textColor, true);
+
+            context.disableScissor();
+        } else {
+            context.drawText(client.textRenderer, displayText, xPos, yPos, textColor, true);
+
+            scrollPosition = 0;
+        }
     }
 
     private boolean isDebugHudOpen() {
@@ -382,5 +430,39 @@ public class SpotifyHUD implements HudRenderCallback {
 
     public int getTextColor() {
         return this.textColor;
+    }
+
+    public void setMaxTextWidth(int width) {
+        this.maxTextWidth = Math.max(50, width);
+        this.presetPositionApplied = false;
+    }
+
+    public void setScrollSpeed(int pixelsPerScroll) {
+        this.scrollSpeed = Math.max(1, pixelsPerScroll);
+    }
+
+    public void setScrollDelay(int milliseconds) {
+        this.scrollDelay = Math.max(10, milliseconds);
+    }
+
+    public void setEnableScrolling(boolean enable) {
+        this.enableScrolling = enable;
+        this.presetPositionApplied = false;
+    }
+
+    public int getMaxTextWidth() {
+        return this.maxTextWidth;
+    }
+
+    public boolean isScrollingEnabled() {
+        return this.enableScrolling;
+    }
+
+    public void setShowWhenNotPlaying(boolean show) {
+        this.showWhenNotPlaying = show;
+    }
+
+    public boolean isShowingWhenNotPlaying() {
+        return this.showWhenNotPlaying;
     }
 }

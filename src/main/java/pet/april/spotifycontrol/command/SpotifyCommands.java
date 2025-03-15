@@ -209,6 +209,96 @@ public class SpotifyCommands {
                                                     )
                                             )
                                     )
+                                    .then(ClientCommandManager.literal("scroll")
+                                            .then(ClientCommandManager.literal("enable")
+                                                    .executes(context -> {
+                                                        try {
+                                                            spotifyHUD.setEnableScrolling(true);
+                                                            context.getSource().sendFeedback(Text.literal("§aSpotify HUD text scrolling enabled"));
+                                                        } catch (Exception e) {
+                                                            context.getSource().sendFeedback(Text.literal("§cError enabling scrolling: " + e.getMessage()));
+                                                        }
+                                                        return 1;
+                                                    })
+                                            )
+                                            .then(ClientCommandManager.literal("disable")
+                                                    .executes(context -> {
+                                                        try {
+                                                            spotifyHUD.setEnableScrolling(false);
+                                                            context.getSource().sendFeedback(Text.literal("§aSpotify HUD text scrolling disabled"));
+                                                        } catch (Exception e) {
+                                                            context.getSource().sendFeedback(Text.literal("§cError disabling scrolling: " + e.getMessage()));
+                                                        }
+                                                        return 1;
+                                                    })
+                                            )
+                                            .then(ClientCommandManager.literal("maxwidth")
+                                                    .then(ClientCommandManager.argument("pixels", IntegerArgumentType.integer(50, 500))
+                                                            .executes(context -> {
+                                                                try {
+                                                                    int width = IntegerArgumentType.getInteger(context, "pixels");
+                                                                    spotifyHUD.setMaxTextWidth(width);
+                                                                    context.getSource().sendFeedback(Text.literal("§aSpotify HUD max text width set to " + width + " pixels"));
+                                                                } catch (Exception e) {
+                                                                    context.getSource().sendFeedback(Text.literal("§cError setting max width: " + e.getMessage()));
+                                                                }
+                                                                return 1;
+                                                            })
+                                                    )
+                                            )
+                                            .then(ClientCommandManager.literal("speed")
+                                                    .then(ClientCommandManager.argument("pixels", IntegerArgumentType.integer(1, 10))
+                                                            .executes(context -> {
+                                                                try {
+                                                                    int speed = IntegerArgumentType.getInteger(context, "pixels");
+                                                                    spotifyHUD.setScrollSpeed(speed);
+                                                                    context.getSource().sendFeedback(Text.literal("§aSpotify HUD scroll speed set to " + speed + " pixels"));
+                                                                } catch (Exception e) {
+                                                                    context.getSource().sendFeedback(Text.literal("§cError setting scroll speed: " + e.getMessage()));
+                                                                }
+                                                                return 1;
+                                                            })
+                                                    )
+                                            )
+                                            .then(ClientCommandManager.literal("delay")
+                                                    .then(ClientCommandManager.argument("milliseconds", IntegerArgumentType.integer(10, 1000))
+                                                            .executes(context -> {
+                                                                try {
+                                                                    int delay = IntegerArgumentType.getInteger(context, "milliseconds");
+                                                                    spotifyHUD.setScrollDelay(delay);
+                                                                    context.getSource().sendFeedback(Text.literal("§aSpotify HUD scroll delay set to " + delay + " milliseconds"));
+                                                                } catch (Exception e) {
+                                                                    context.getSource().sendFeedback(Text.literal("§cError setting scroll delay: " + e.getMessage()));
+                                                                }
+                                                                return 1;
+                                                            })
+                                                    )
+                                            )
+                                    )
+                                    .then(ClientCommandManager.literal("notplaying")
+                                            .then(ClientCommandManager.literal("show")
+                                                    .executes(context -> {
+                                                        try {
+                                                            spotifyHUD.setShowWhenNotPlaying(true);
+                                                            context.getSource().sendFeedback(Text.literal("§aSpotify HUD will now show when nothing is playing"));
+                                                        } catch (Exception e) {
+                                                            context.getSource().sendFeedback(Text.literal("§cError: " + e.getMessage()));
+                                                        }
+                                                        return 1;
+                                                    })
+                                            )
+                                            .then(ClientCommandManager.literal("hide")
+                                                    .executes(context -> {
+                                                        try {
+                                                            spotifyHUD.setShowWhenNotPlaying(false);
+                                                            context.getSource().sendFeedback(Text.literal("§aSpotify HUD will hide when nothing is playing"));
+                                                        } catch (Exception e) {
+                                                            context.getSource().sendFeedback(Text.literal("§cError: " + e.getMessage()));
+                                                        }
+                                                        return 1;
+                                                    })
+                                            )
+                                    )
                             )
             );
         } catch (Exception e) {
@@ -225,23 +315,23 @@ public class SpotifyCommands {
 
         int color;
         switch (hexColor.length()) {
-            case 3: // RGB format
+            case 3:
                 String r = hexColor.substring(0, 1);
                 String g = hexColor.substring(1, 2);
                 String b = hexColor.substring(2, 3);
                 color = Integer.parseInt(r + r + g + g + b + b, 16) | 0xFF000000;
                 break;
-            case 4: // RGBA format
+            case 4:
                 r = hexColor.substring(0, 1);
                 g = hexColor.substring(1, 2);
                 b = hexColor.substring(2, 3);
                 String a = hexColor.substring(3, 4);
                 color = Integer.parseInt(a + a + r + r + g + g + b + b, 16);
                 break;
-            case 6: // RRGGBB format
+            case 6:
                 color = Integer.parseInt(hexColor, 16) | 0xFF000000;
                 break;
-            case 8: // RRGGBBAA format
+            case 8:
                 String aa = hexColor.substring(0, 2);
                 String rr = hexColor.substring(2, 4);
                 String gg = hexColor.substring(4, 6);
